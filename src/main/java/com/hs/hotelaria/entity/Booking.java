@@ -3,7 +3,10 @@ package com.hs.hotelaria.entity;
 import lombok.Data;
 
 import javax.persistence.*;
+import javax.validation.constraints.Future;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @Data
@@ -15,16 +18,16 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
+    @NotNull(message = "check in date is required")
     private LocalDate checkInDate;
 
-    @NotBlank
+    @Future(message = "checkout date must be in the future")
     private LocalDate checkOutDate;
 
-    @NotBlank
+    @Min(value = 1, message = "Number of adults must not be less than 1")
     private int numOfAdults;
 
-    @NotBlank
+    @Min(value = 0, message = "Number of adults must not be less than 0")
     private int numOfChildrens;
     private int totalNumOfGuest;
     private String bookingConfirmationCode;
@@ -36,4 +39,31 @@ public class Booking {
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id")
     private Room room;
+
+    public void calculateTotalNumberOfGuest(){
+        this.totalNumOfGuest = this.numOfAdults + this.numOfChildrens;
+    }
+
+    public void setNumOfAdults(int numOfAdults) {
+        this.numOfAdults = numOfAdults;
+        calculateTotalNumberOfGuest();
+    }
+
+    public void setNumOfChildrens(int numOfChildrens) {
+        this.numOfChildrens = numOfChildrens;
+        calculateTotalNumberOfGuest();
+    }
+
+    @Override
+    public String toString() {
+        return "Booking{" +
+                "id=" + id +
+                ", checkInDate=" + checkInDate +
+                ", checkOutDate=" + checkOutDate +
+                ", numOfAdults=" + numOfAdults +
+                ", numOfChildrens=" + numOfChildrens +
+                ", totalNumOfGuest=" + totalNumOfGuest +
+                ", bookingConfirmationCode='" + bookingConfirmationCode + '\'' +
+                '}';
+    }
 }
